@@ -359,6 +359,82 @@ render(){
 - React.lazy
 - React.Suspense
 
+### React性能优化-SCU的核心问题在哪里
+
+> 在 react 中，父组件有更新，子组件则无条件也更新
+
+- shouldComponentUpdate (简称 SCU)
+- PureComponent 和 React.memo
+- 不可变值 immutable.js
+
+SCU 一定要每次都用吗？ -- 需要的时候才优化
+
+SCU 默认返回 true,即 React 默认重新渲染所有子组件
+
+SCU 必须配和 "不可变值" 一起使用
+
+可先不用 SCU，有性能问题时再考虑使用
+
+>  PureComponent 和 memo
+
+PureComponent(纯组件), SCU 中实现了浅比较，只比较 props或 state的 第一层，不进行深度比较
+
+PureComponent 是 class组件
+
+memo　是　PureComponent 的函数组件版本
+
+浅比较已适用大部分情况(尽量不要做深度比较)
+
+```jsx
+
+// memo 用法
+function MyComponent(props){
+  /* 使用 props 渲染 */
+}
+
+function areEqual(prevProps,nextProps){
+  /**
+   * 如果把 nextProps 传入 render 方法的返回结果与
+   * 将 prevProps 传入 render 方法的返回结果一致则返回 true,
+   * 否则则返回 false
+   */
+}
+
+
+
+export default  React.memo(MyComponent,areEqual)
+```
+
+**immutable.js**
+
+- 彻底拥抱 "不可变值"
+- 基于共享数据（不是深拷贝），速度好
+- 有一定学习和迁移成本，按需使用
+
+```js
+
+const map1 = immutable.Map({a:1,b:2,c:3})
+const map2 = map1.set('b',50)
+
+map1.get('b') // 2
+map2.get('b') // 50
+
+```
+
+
+
+
+```JSX
+
+// SCU 基本用法 SCU 不修改的话默认 会返回true
+shouldComponentUpdate(nextProps,nextState){
+  if(nextState.count !== this.state.count){
+    return true // 可以渲染
+  }
+  return false // 不重复渲染
+}
+```
+
 ## redux
 - store
 - reducer
